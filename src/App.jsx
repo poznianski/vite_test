@@ -1,34 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
+import MovieCard from './components/MovieCard.jsx'
+import SearchIcon from './search.svg'
 
-function App() {
-  const [count, setCount] = useState(0)
+const API_URL = 'https://omdbapi.com?apikey=6c67d7e3'
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+const movie1 = {
+  "Title": "Undefined",
+  "Year": "2006",
+  "imdbID": "tt1436480",
+  "Type": "movie",
+  "Poster": "https://m.media-amazon.com/images/M/MV5BMTgzNzkxMzk5Nl5BMl5BanBnXkFtZTgwMTQ2MzA2MDE@._V1_SX300.jpg"
 }
 
-export default App
+const App = () => {
+  const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('')
+  
+  const searchMovies = async (title) => {
+    const response = await fetch(`${API_URL}&s=${title}`);
+    const data = await response.json();
+  
+    setMovies(data.Search)
+  }
+  
+  useEffect(() => {
+    searchMovies()
+  }, [])
+  
+  
+  return (
+    <div className="app">
+      <h1>MovieLand</h1>
+      
+      <div className="search">
+        <input
+          type="text"
+          placeholder="Search for movies"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+  
+        <img
+          src={SearchIcon}
+          alt="search"
+          onClick={() => searchMovies(searchTerm)}
+        />
+      </div>
+  
+      {movies?.length > 0
+        ? (
+          <div className="container">
+            {movies.map((movie) => (
+              <MovieCard movie={movie} />
+            ))}
+          </div>
+        ) : (
+          <div className="empty">
+            <h2>No movies found</h2>
+          </div>
+        )}
+    </div>
+  );
+}
+
+export default App;
